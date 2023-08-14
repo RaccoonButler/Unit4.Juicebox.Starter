@@ -38,7 +38,7 @@ postsRouter.get('/', async (req, res, next) => {
 });
 
 postsRouter.post('/', requireUser, async (req, res, next) => {
-  const { title, content = "" } = req.body;
+  const { title, content = "", tags } = req.body; // Added 'tags' here
 
   const postData = {};
 
@@ -49,18 +49,23 @@ postsRouter.post('/', requireUser, async (req, res, next) => {
 
     const post = await createPost(postData);
 
+    if (tags && tags.length > 0) { // Check if tags are provided
+      await updatePostTags(post.id, tags); // Call function to update tags
+    }
+
     if (post) {
       res.send(post);
     } else {
       next({
         name: 'PostCreationError',
         message: 'There was an error creating your post. Please try again.'
-      })
+      });
     }
   } catch ({ name, message }) {
     next({ name, message });
   }
 });
+
 
 postsRouter.patch('/:postId', requireUser, async (req, res, next) => {
   const { postId } = req.params;

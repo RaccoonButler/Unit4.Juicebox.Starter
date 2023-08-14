@@ -354,7 +354,17 @@ async function getAllTags() {
   }
 }
 
-module.exports = {  
+async function updatePostTags(postId, tags) {
+  try {
+    const tagList = await createTags(tags); // Create or update tags
+    const post = await addTagsToPost(postId, tagList); // Associate tags with the post
+    return post;
+  } catch (error) {
+    throw error;
+  }
+}
+
+module.exports = {
   client,
   createUser,
   updateUser,
@@ -370,5 +380,6 @@ module.exports = {
   createTags,
   getAllTags,
   createPostTag,
-  addTagsToPost
-}
+  addTagsToPost,
+  updatePostTags
+};

@@ -8,6 +8,7 @@ const {
   getAllPosts,
   updatePost,
   getPostById,
+  deletePost, // Import the deletePost function
 } = require('../db');
 
 postsRouter.get('/', async (req, res, next) => {
@@ -20,7 +21,7 @@ postsRouter.get('/', async (req, res, next) => {
         return true;
       }
     
-      // the post is not active, but it belogs to the current user
+      // the post is not active, but it belongs to the current user
       if (req.user && post.author.id === req.user.id) {
         return true;
       }
@@ -66,7 +67,6 @@ postsRouter.post('/', requireUser, async (req, res, next) => {
   }
 });
 
-
 postsRouter.patch('/:postId', requireUser, async (req, res, next) => {
   const { postId } = req.params;
   const { title, content, tags } = req.body;
@@ -103,7 +103,25 @@ postsRouter.patch('/:postId', requireUser, async (req, res, next) => {
 });
 
 postsRouter.delete('/:postId', requireUser, async (req, res, next) => {
-  res.send({ message: 'under construction' });
+  try {
+    const postId = req.params.postId;
+    
+    const postToDelete = await getPostById(postId);
+    
+    if (!postToDelete) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
+    if (postToDelete.author.id !== req.user.id) {
+      return res.status(403).json({ error: 'Unauthorized: You cannot delete this post' });
+    }
+    
+    await deletePost(postId);
+    
+    res.status(204).send();
+  } catch (error) {
+    next(error);
+  }
 });
 
 module.exports = postsRouter;

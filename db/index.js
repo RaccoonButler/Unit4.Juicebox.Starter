@@ -364,6 +364,17 @@ async function updatePostTags(postId, tags) {
   }
 }
 
+async function deletePost(postId) {
+  try {
+    await client.query(`
+      DELETE FROM posts
+      WHERE id = $1;
+    `, [postId]);
+  } catch (error) {
+    throw error;
+  }
+}
+
 module.exports = {
   client,
   createUser,
@@ -381,5 +392,6 @@ module.exports = {
   getAllTags,
   createPostTag,
   addTagsToPost,
-  updatePostTags
+  updatePostTags,
+  deletePost
 };

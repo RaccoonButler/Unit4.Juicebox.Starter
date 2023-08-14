@@ -24,6 +24,14 @@ server.use('/api', apiRouter);
 const { client } = require('./db');
 client.connect();
 
+// Serve static files from the 'public' directory
+server.use(express.static('public'));
+
+// Catch-all route to handle requests for the frontend app
+server.get('*', (req, res) => {
+  res.sendFile(__dirname + '/public/index.html');
+});
+
 server.listen(PORT, () => {
   console.log("The server is up on port", PORT);
 });
